@@ -5,7 +5,7 @@ from models.circle_body import CircleBody
 class TrajectoryCalculator:
     """Класс для расчета траекторий движения тела в поле скоростей"""
 
-    def __init__(self, body: CircleBody, t0: float = 0.1, t_end: float = 3.0):
+    def __init__(self, body: CircleBody, t0: float = 0.0, t_end: float = 3.0):  # ИЗМЕНЕНИЕ: t0=0.0 по умолчанию
         self.body = body
         self.t0 = t0
         self.t_end = t_end
@@ -32,9 +32,18 @@ class TrajectoryCalculator:
 
             for t in t_points:
                 # Аналитическое решение
-                if t > 0:
+                if t == 0:
+                    # t=0
+                    x = x0
+                    y = y0
+                elif t > 0:
                     # x(t) = x₀ * exp(-[t·ln(t) - t])
-                    x = x0 * np.exp(-(t * np.log(t) - t))
+                    # Используем безопасное вычисление для малых t
+                    if t < 1e-10:
+                        # При t -> 0: exp(-[t·ln(t) - t]) → exp(t) ≈ 1 + t
+                        x = x0 * np.exp(t)
+                    else:
+                        x = x0 * np.exp(-(t * np.log(t) - t))
                     # y(t) = y₀ * exp(t²/2)
                     y = y0 * np.exp(t ** 2 / 2)
                 else:
@@ -78,8 +87,16 @@ class TrajectoryCalculator:
             y0 = point.trajectory[0].y if point.trajectory else point.y
 
             # Аналитическое решение для времени t
-            if t > 0:
-                x = x0 * np.exp(-(t * np.log(t) - t))
+            if t == 0:
+                # t=0
+                x = x0
+                y = y0
+            elif t > 0:
+                # Используем безопасное вычисление для малых t
+                if t < 1e-10:
+                    x = x0 * np.exp(t)
+                else:
+                    x = x0 * np.exp(-(t * np.log(t) - t))
                 y = y0 * np.exp(t ** 2 / 2)
             else:
                 x = x0
