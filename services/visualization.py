@@ -16,7 +16,7 @@ class Visualization:
         # 1. Начальная форма
         init_circle_x, init_circle_y = trajectory_calculator.get_initial_circle()
         plt.plot(init_circle_x, init_circle_y, 'g-', linewidth=2,
-                 label=f'Начальная форма (t={trajectory_calculator.t0:.1f})')
+                 label='Начальная форма (t=0.0)')  # ИЗМЕНЕНИЕ: фиксированная подпись
 
         # 2. Рисуем траектории
         for traj_x, traj_y in trajectories:
@@ -52,7 +52,7 @@ class Visualization:
         # Начальная окружность
         init_circle_x, init_circle_y = trajectory_calculator.get_initial_circle()
         plt.plot(init_circle_x, init_circle_y, 'g-', linewidth=3,
-                 label=f'Начальная форма (t={trajectory_calculator.t0:.1f})')
+                 label='Начальная форма (t=0.0)')
 
         # Точки материальных точек
         trajectories = trajectory_calculator.get_body_trajectories()
@@ -64,7 +64,9 @@ class Visualization:
         plt.xlabel('x', fontsize=12)
         plt.ylabel('y', fontsize=12)
         plt.title('Начальная форма окружности', fontsize=14, fontweight='bold')
-        plt.legend(loc='best')
+
+        plt.legend(loc='upper right')  
+
         plt.grid(True, alpha=0.3)
         plt.axis('equal')
         plt.tight_layout()
@@ -195,14 +197,14 @@ class Visualization:
         print("ГРАФИК 1: ТРАЕКТОРИИ С НАЧАЛЬНОЙ ФОРМОЙ")
         print("=" * 60)
         print("Показывает:")
-        print("  • Начальную форму (зеленая окружность)")
+        print("  • Начальную форму (зеленая окружность, t=0.0)")
         print("  • Траектории движения точек (синие линии)")
         print("  • Конечные положения точек (красные точки)")
         print("  • Все траектории начинаются на начальной окружности")
         Visualization.plot_trajectories_with_forms(trajectory_calculator)
 
         print("\n" + "=" * 60)
-        print(f"ГРАФИК 2: НАЧАЛЬНАЯ ФОРМА (t={trajectory_calculator.t0:.1f})")
+        print("ГРАФИК 2: НАЧАЛЬНАЯ ФОРМА (t=0.0)")  
         print("=" * 60)
         print("Показывает исходную окружность с материальными точками")
         Visualization.plot_initial_form_only(trajectory_calculator)
