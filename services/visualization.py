@@ -16,7 +16,7 @@ class Visualization:
         # 1. Начальная форма
         init_circle_x, init_circle_y = trajectory_calculator.get_initial_circle()
         plt.plot(init_circle_x, init_circle_y, 'g-', linewidth=2,
-                 label='Начальная форма (t=0.0)')  # ИЗМЕНЕНИЕ: фиксированная подпись
+                 label='Начальная форма (t=0.0)')  
 
         # 2. Рисуем траектории
         for traj_x, traj_y in trajectories:
