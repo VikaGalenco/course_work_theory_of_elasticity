@@ -1,63 +1,58 @@
 import numpy as np
 from models.circle_body import CircleBody
+from services.runge_kutta import RungeKuttaSolver
+from services.butcher_table import ButcherTable
+from services.velocity_field import VelocityField
 
 
 class TrajectoryCalculator:
     """Класс для расчета траекторий движения тела в поле скоростей"""
 
-    def __init__(self, body: CircleBody, t0: float = 0.0, t_end: float = 3.0):  # ИЗМЕНЕНИЕ: t0=0.0 по умолчанию
+    def __init__(self, body: CircleBody, t0: float = 0.001, t_end: float = 2.0, dt: float = 0.01):
         self.body = body
         self.t0 = t0
         self.t_end = t_end
+        self.dt = dt
 
-    def calculate_trajectories_analytical(self):
-        """
-        Аналитическое решение траекторий:
-        x(t) = x₀ * exp(-[t·ln(t) - t])
-        y(t) = y₀ * exp(t²/2)
-        """
+        # Создаем решатель Рунге-Кутты
+        self.butcher_table = ButcherTable()
+        self.rk_solver = RungeKuttaSolver(self.butcher_table)
+
+        # Функция скорости для метода РК
+        self.velocity_func = VelocityField.get_velocity_function()
+
+    def calculate_trajectories_numerical(self):
+        """Рассчитывает траектории методом Рунге-Кутты"""
         points = self.body.get_points()
 
         for point in points:
             # Начальные координаты
-            x0 = point.x
-            y0 = point.y
+            y0 = np.array([point.x, point.y])
 
-            # Очищаем траекторию
+            # Очищаем старую траекторию
             point.trajectory = []
 
-            # Создаем временную сетку
-            n_points = 100
-            t_points = np.linspace(self.t0, self.t_end, n_points)
+            # Добавляем начальную точку
+            point.add_position_to_trajectory()
 
-            for t in t_points:
-                # Аналитическое решение
-                if t == 0:
-                    # t=0
-                    x = x0
-                    y = y0
-                elif t > 0:
-                    # x(t) = x₀ * exp(-[t·ln(t) - t])
-                    # Используем безопасное вычисление для малых t
-                    if t < 1e-10:
-                        # При t -> 0: exp(-[t·ln(t) - t]) → exp(t) ≈ 1 + t
-                        x = x0 * np.exp(t)
-                    else:
-                        x = x0 * np.exp(-(t * np.log(t) - t))
-                    # y(t) = y₀ * exp(t²/2)
-                    y = y0 * np.exp(t ** 2 / 2)
-                else:
-                    x = x0
-                    y = y0
+            # Решаем систему ОДУ методом Рунге-Кутты
+            t_points, y_points = self.rk_solver.solve(
+                self.velocity_func,  # функция правых частей: [vx, vy]
+                y0,  # начальные условия: [x0, y0]
+                self.t0,  # начальное время
+                self.t_end,  # конечное время
+                self.dt  # шаг интегрирования
+            )
 
-                # Сохраняем точку
-                point.x = x
-                point.y = y
+            # Записываем траекторию (пропускаем первую точку, т.к. она уже добавлена)
+            for i in range(1, len(t_points)):
+                point.x = y_points[i, 0]
+                point.y = y_points[i, 1]
                 point.add_position_to_trajectory()
 
     def calculate_trajectories(self):
-        """Рассчитывает траектории аналитически"""
-        self.calculate_trajectories_analytical()
+        """Рассчитывает траектории (используем численный метод Рунге-Кутты)"""
+        self.calculate_trajectories_numerical()
 
     def get_body_trajectories(self):
         """Возвращает траектории всех точек тела"""
@@ -66,7 +61,6 @@ class TrajectoryCalculator:
             x_coords = [p.x for p in point.trajectory]
             y_coords = [p.y for p in point.trajectory]
             trajectories.append((x_coords, y_coords))
-
         return trajectories
 
     def get_initial_circle(self):
@@ -75,7 +69,7 @@ class TrajectoryCalculator:
 
     def get_form_at_time(self, t):
         """
-        Возвращает форму окружности в момент времени t (аналитически)
+        Возвращает форму окружности в момент времени t
         """
         points = self.body.get_points()
         result_x = []
@@ -83,26 +77,19 @@ class TrajectoryCalculator:
 
         for point in points:
             # Начальные координаты
-            x0 = point.trajectory[0].x if point.trajectory else point.x
-            y0 = point.trajectory[0].y if point.trajectory else point.y
+            y0 = np.array([point.trajectory[0].x, point.trajectory[0].y])
 
-            # Аналитическое решение для времени t
-            if t == 0:
-                # t=0
-                x = x0
-                y = y0
-            elif t > 0:
-                # Используем безопасное вычисление для малых t
-                if t < 1e-10:
-                    x = x0 * np.exp(t)
-                else:
-                    x = x0 * np.exp(-(t * np.log(t) - t))
-                y = y0 * np.exp(t ** 2 / 2)
-            else:
-                x = x0
-                y = y0
+            # Решаем до времени t
+            t_points, y_points = self.rk_solver.solve(
+                self.velocity_func,
+                y0,
+                self.t0,
+                t,  # только до времени t
+                self.dt
+            )
 
-            result_x.append(x)
-            result_y.append(y)
+            # Берем последнюю точку
+            result_x.append(y_points[-1, 0])
+            result_y.append(y_points[-1, 1])
 
         return result_x, result_y
