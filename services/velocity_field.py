@@ -14,7 +14,6 @@ class VelocityField:
         if t <= 0:
             return 0.0, 0.0
 
-        # Оригинальные формулы из задания
         vx = -np.log(t) * x
         vy = t * y
 
