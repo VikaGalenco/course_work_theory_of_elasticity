@@ -8,7 +8,6 @@ class Visualization:
 
     @staticmethod
     def plot_trajectories_with_forms(trajectory_calculator):
-
         trajectories = trajectory_calculator.get_body_trajectories()
 
         plt.figure(figsize=(10, 8))
@@ -16,13 +15,13 @@ class Visualization:
         # 1. Начальная форма
         init_circle_x, init_circle_y = trajectory_calculator.get_initial_circle()
         plt.plot(init_circle_x, init_circle_y, 'g-', linewidth=2,
-                 label='Начальная форма (t=0.0)')  
+                 label='Начальная форма (t≈0)')
 
         # 2. Рисуем траектории
         for traj_x, traj_y in trajectories:
             plt.plot(traj_x, traj_y, 'b-', alpha=0.15, linewidth=0.7)
 
-        # 3. Отмечаем начальные точки на начальной окружности
+        # 3. Отмечаем начальные точки
         init_x = [traj_x[0] for traj_x, _ in trajectories]
         init_y = [traj_y[0] for _, traj_y in trajectories]
         plt.scatter(init_x, init_y, c='green', s=10, alpha=0.6, zorder=5)
@@ -35,7 +34,7 @@ class Visualization:
 
         plt.xlabel('x', fontsize=12)
         plt.ylabel('y', fontsize=12)
-        plt.title('Траектории движения окружности', fontsize=14, fontweight='bold')
+        plt.title('Траектории движения окружности (метод Рунге-Кутты)', fontsize=14, fontweight='bold')
         plt.legend(loc='best')
         plt.grid(True, alpha=0.3)
         plt.axis('equal')
@@ -44,15 +43,12 @@ class Visualization:
 
     @staticmethod
     def plot_initial_form_only(trajectory_calculator):
-        """
-        График 2: Только начальная форма
-        """
         plt.figure(figsize=(8, 8))
 
         # Начальная окружность
         init_circle_x, init_circle_y = trajectory_calculator.get_initial_circle()
         plt.plot(init_circle_x, init_circle_y, 'g-', linewidth=3,
-                 label='Начальная форма (t=0.0)')
+                 label='Начальная форма (t≈0)')
 
         # Точки материальных точек
         trajectories = trajectory_calculator.get_body_trajectories()
@@ -64,9 +60,7 @@ class Visualization:
         plt.xlabel('x', fontsize=12)
         plt.ylabel('y', fontsize=12)
         plt.title('Начальная форма окружности', fontsize=14, fontweight='bold')
-
-        plt.legend(loc='upper right')  
-
+        plt.legend(loc='upper left')
         plt.grid(True, alpha=0.3)
         plt.axis('equal')
         plt.tight_layout()
@@ -74,9 +68,6 @@ class Visualization:
 
     @staticmethod
     def plot_deformed_form_at_2_only(trajectory_calculator):
-        """
-        График 3: Деформированная форма при t=2.0
-        """
         plt.figure(figsize=(8, 8))
 
         # Получаем форму при t=2.0
@@ -101,9 +92,6 @@ class Visualization:
 
     @staticmethod
     def plot_velocity_field_only(t):
-        """
-        График 4,6,8: Поле скоростей
-        """
         plt.figure(figsize=(10, 8))
 
         # Область
@@ -145,9 +133,6 @@ class Visualization:
 
     @staticmethod
     def plot_streamlines_only(t):
-        """
-        График 5,7,9: Линии тока
-        """
         plt.figure(figsize=(10, 8))
 
         # Область
@@ -192,19 +177,18 @@ class Visualization:
 
     @staticmethod
     def show_minimal_graphs(trajectory_calculator):
-
         print("\n" + "=" * 60)
         print("ГРАФИК 1: ТРАЕКТОРИИ С НАЧАЛЬНОЙ ФОРМОЙ")
         print("=" * 60)
+        print("Метод: Рунге-Кутты 4-го порядка с таблицей Бутчера")
         print("Показывает:")
-        print("  • Начальную форму (зеленая окружность, t=0.0)")
+        print("  • Начальную форму (зеленая окружность, t≈0)")
         print("  • Траектории движения точек (синие линии)")
         print("  • Конечные положения точек (красные точки)")
-        print("  • Все траектории начинаются на начальной окружности")
         Visualization.plot_trajectories_with_forms(trajectory_calculator)
 
         print("\n" + "=" * 60)
-        print("ГРАФИК 2: НАЧАЛЬНАЯ ФОРМА (t=0.0)")  
+        print("ГРАФИК 2: НАЧАЛЬНАЯ ФОРМА (t≈0)")
         print("=" * 60)
         print("Показывает исходную окружность с материальными точками")
         Visualization.plot_initial_form_only(trajectory_calculator)
@@ -212,6 +196,7 @@ class Visualization:
         print("\n" + "=" * 60)
         print("ГРАФИК 3: ДЕФОРМИРОВАННАЯ ФОРМА (t=2.0)")
         print("=" * 60)
+        print("Метод: Рунге-Кутты до t=2.0")
         print("Показывает форму окружности после деформации")
         Visualization.plot_deformed_form_at_2_only(trajectory_calculator)
 
