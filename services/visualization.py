@@ -50,7 +50,7 @@ class Visualization:
         plt.plot(init_circle_x, init_circle_y, 'g-', linewidth=3,
                  label='Начальная форма (t≈0)')
 
-        # Точки материальных точек
+        # Начальные зеленые точки
         trajectories = trajectory_calculator.get_body_trajectories()
         init_x = [traj_x[0] for traj_x, _ in trajectories]
         init_y = [traj_y[0] for _, traj_y in trajectories]
